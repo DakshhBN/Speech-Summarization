@@ -4,6 +4,7 @@ Upload an audio file (2+ minutes), get back a transcript (Gnani ASR) and an LLM
 summary. Past uploads are listed and can be reopened. See `/architecture` in the
 running app for a full writeup of the design.
 
+- **Repo:** https://github.com/DakshhBN/Speech-Summarization
 - **Live app:** _add deployed URL here after deploying_
 - **Architecture writeup:** `<deployed-url>/architecture`
 

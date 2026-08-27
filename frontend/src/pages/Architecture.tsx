@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const REPO_URL = "https://github.com/dakshh25/audio-notes-platform";
+const REPO_URL = "https://github.com/DakshhBN/Speech-Summarization";
 
 export default function Architecture() {
   return (
