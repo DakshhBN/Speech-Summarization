@@ -30,7 +30,15 @@ def upgrade() -> None:
         sa.Column("original_filename", sa.String(), nullable=False),
         sa.Column("storage_path", sa.String(), nullable=False),
         sa.Column("duration_seconds", sa.Integer(), nullable=True),
-        sa.Column("status", note_status, nullable=False, server_default="uploaded"),
+        sa.Column(
+            "status",
+            postgresql.ENUM(
+                "uploaded", "transcribing", "summarizing", "done", "failed",
+                name="note_status", create_type=False,
+            ),
+            nullable=False,
+            server_default="uploaded",
+        ),
         sa.Column("error_message", sa.Text(), nullable=True),
         sa.Column("transcript", sa.Text(), nullable=True),
         sa.Column("summary", sa.Text(), nullable=True),

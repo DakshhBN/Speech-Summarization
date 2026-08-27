@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from logging.config import fileConfig
 
 from alembic import context
@@ -7,6 +8,9 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from app.config import get_settings
 from app.database import Base
 from app.models import Note  # noqa: F401 - registers the model with Base.metadata
+
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 config = context.config
 
