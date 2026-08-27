@@ -1,0 +1,41 @@
+services:
+  - name: audio-notes-backend
+    type: web
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SUPABASE_BUCKET
+        value: audio-notes
+      - key: GNANI_API_KEY
+        sync: false
+      - key: GNANI_LANGUAGE_CODE
+        value: en-IN
+      - key: GROQ_API_KEY
+        sync: false
+      - key: CORS_ORIGINS_RAW
+        sync: false
+
+  - name: audio-notes-frontend
+    type: web
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - source: /*
+        destination: /index.html
+        type: rewrite
+    envVars:
+      - key: VITE_API_URL
+        sync: false
