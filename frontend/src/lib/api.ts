@@ -47,3 +47,12 @@ export async function uploadNote(
   });
   return data;
 }
+
+export async function renameNote(id: string, name: string): Promise<NoteDetail> {
+  const { data } = await api.patch<NoteDetail>(`/notes/${id}`, { original_filename: name });
+  return data;
+}
+
+export async function deleteNote(id: string): Promise<void> {
+  await api.delete(`/notes/${id}`);
+}

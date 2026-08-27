@@ -1,18 +1,25 @@
-import { Link, Route, Routes } from "react-router-dom";
+import { Link, Route, Routes, useNavigate } from "react-router-dom";
+import { Logo } from "./components/Logo";
 import Architecture from "./pages/Architecture";
 import Home from "./pages/Home";
 import NoteDetail from "./pages/NoteDetail";
 
 function App() {
+  const navigate = useNavigate();
+
   return (
-    <div className="min-h-screen">
-      <nav className="border-b border-slate-800 px-4 py-3 flex justify-between max-w-3xl mx-auto">
-        <Link to="/" className="font-medium">
-          Audio Notes
+    <div className="min-h-screen relative">
+      <div className="bg-glow" />
+      <nav className="border-b border-white/[0.06] px-6 py-4 flex justify-between items-center max-w-4xl mx-auto">
+        <Link to="/">
+          <Logo />
         </Link>
-        <Link to="/architecture" className="text-slate-400 hover:text-slate-200 text-sm">
-          architecture
-        </Link>
+        <button
+          onClick={() => navigate("/architecture")}
+          className="glass rounded-full px-4 py-2 text-sm font-medium text-slate-200 hover:text-white hover:border-violet-400/40 hover:shadow-[0_0_24px_-8px_rgba(139,92,246,0.6)] transition-all duration-300"
+        >
+          Architecture
+        </button>
       </nav>
       <Routes>
         <Route path="/" element={<Home />} />
