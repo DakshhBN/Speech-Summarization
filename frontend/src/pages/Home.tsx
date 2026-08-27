@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Check, Pencil, Trash2, UploadCloud, X } from "lucide-react";
+import { AlertTriangle, Check, FileText, Mic, Pencil, Sparkles, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { StatusBadge } from "../components/StatusBadge";
@@ -50,6 +50,12 @@ export default function Home() {
     const interval = setInterval(refresh, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (!uploadError) return;
+    const timeout = setTimeout(() => setUploadError(null), 5000);
+    return () => clearTimeout(timeout);
+  }, [uploadError]);
 
   async function handleFile(file: File) {
     const error = validateFile(file);
@@ -118,6 +124,24 @@ export default function Home() {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-14">
+      {uploadError && (
+        <div className="fixed top-6 right-6 z-50 pop-in max-w-sm">
+          <div className="glass border-rose-500/30 bg-rose-500/[0.08] rounded-xl px-4 py-3.5 flex items-start gap-3 shadow-[0_15px_40px_-10px_rgba(244,63,94,0.35)]">
+            <AlertTriangle className="w-4.5 h-4.5 text-rose-400 shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              <p className="text-rose-300 text-sm font-medium">Upload failed</p>
+              <p className="text-rose-300/70 text-xs mt-0.5 leading-relaxed">{uploadError}</p>
+            </div>
+            <button
+              onClick={() => setUploadError(null)}
+              className="ml-auto text-rose-400/60 hover:text-rose-300 transition-colors shrink-0"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="fade-up">
         <h1 className="text-4xl font-semibold tracking-tight mb-2">
           Turn audio into <span className="gradient-text">insight</span>
@@ -140,13 +164,26 @@ export default function Home() {
           if (file) handleFile(file);
         }}
         onClick={() => fileInputRef.current?.click()}
-        className={`fade-up glass rounded-2xl p-12 text-center cursor-pointer transition-all duration-300 ${
+        className={`fade-up gradient-border card-float relative overflow-hidden rounded-2xl p-14 text-center cursor-pointer transition-all duration-300 hover:-translate-y-1.5 ${
           dragActive
-            ? "border-violet-400/50 shadow-[0_0_40px_-10px_rgba(139,92,246,0.5)] scale-[1.01]"
-            : "hover:border-white/20"
+            ? "active scale-[1.015] shadow-[0_25px_70px_-15px_rgba(245,165,36,0.5)]"
+            : "shadow-[0_20px_50px_-24px_rgba(245,165,36,0.3)] hover:shadow-[0_30px_70px_-20px_rgba(245,165,36,0.4)]"
         }`}
         style={{ animationDelay: "0.05s" }}
       >
+        <div className="relative inline-flex items-center justify-center mb-6 w-20 h-20">
+          <span className="ripple absolute inset-0 rounded-full border border-amber-400/40" />
+          <span className="ripple absolute inset-0 rounded-full border border-amber-400/40" style={{ animationDelay: "0.8s" }} />
+          <span className="ripple absolute inset-0 rounded-full border border-amber-400/40" style={{ animationDelay: "1.6s" }} />
+          <div
+            className={`badge-bob relative w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-br from-orange-500 via-amber-400 to-yellow-300 shadow-[0_8px_24px_-6px_rgba(245,165,36,0.7)] transition-transform duration-300 ${
+              dragActive ? "scale-110" : ""
+            }`}
+          >
+            <Mic className="w-6 h-6 text-black/80" strokeWidth={2.25} />
+          </div>
+        </div>
+
         <input
           ref={fileInputRef}
           type="file"
@@ -157,11 +194,37 @@ export default function Home() {
             if (file) handleFile(file);
           }}
         />
-        <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4 bg-gradient-to-br from-violet-500/20 to-cyan-400/20 ${dragActive ? "" : "float"}`}>
-          <UploadCloud className="w-6 h-6 text-violet-300" />
+        <p className="text-slate-100 font-medium text-lg">
+          {dragActive ? "release to upload" : "Drop your recording here"}
+        </p>
+        <p className="text-slate-500 text-sm mt-2">
+          or <span className="text-amber-400/90 underline underline-offset-4 decoration-amber-500/40">click to browse</span>
+        </p>
+
+        <div className="flex items-center justify-center gap-3 mt-9 pt-7 border-t border-white/[0.06]">
+          {[
+            { icon: Mic, label: "Record" },
+            { icon: FileText, label: "Transcribe" },
+            { icon: Sparkles, label: "Summarize" },
+          ].map((step, i, arr) => (
+            <div key={step.label} className="flex items-center gap-3">
+              <div className="flex flex-col items-center gap-1.5">
+                <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                  <step.icon className="w-3.5 h-3.5 text-amber-300/80" />
+                </div>
+                <span className="text-[10px] uppercase tracking-wider text-slate-500">{step.label}</span>
+              </div>
+              {i < arr.length - 1 && (
+                <div className="relative w-10 h-px bg-white/10 -mt-4 overflow-visible">
+                  <span
+                    className="flow-dot absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_2px_rgba(245,165,36,0.6)]"
+                    style={{ animationDelay: `${i * 0.8}s` }}
+                  />
+                </div>
+              )}
+            </div>
+          ))}
         </div>
-        <p className="text-slate-200 font-medium">Drag & drop an audio file, or click to browse</p>
-        <p className="text-slate-500 text-sm mt-1.5">wav, mp3, m4a, aac, ogg, flac... up to 10MB</p>
       </div>
 
       {progress !== null && (
@@ -176,11 +239,6 @@ export default function Home() {
         </div>
       )}
 
-      {uploadError && (
-        <div className="mt-4 fade-up bg-rose-500/10 border border-rose-500/25 text-rose-300 rounded-xl px-4 py-3 text-sm">
-          {uploadError}
-        </div>
-      )}
 
       <h2 className="text-sm font-medium text-slate-400 uppercase tracking-wide mt-12 mb-4">
         Past uploads
@@ -209,7 +267,7 @@ export default function Home() {
                       value={editValue}
                       onChange={(e) => setEditValue(e.target.value)}
                       onClick={(e) => e.preventDefault()}
-                      className="flex-1 min-w-0 bg-black/30 border border-violet-400/40 rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-violet-400"
+                      className="flex-1 min-w-0 bg-black/30 border border-amber-400/40 rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-amber-400"
                     />
                     <button
                       onClick={saveEdit}
@@ -237,7 +295,7 @@ export default function Home() {
                       <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ml-1">
                         <button
                           onClick={(e) => startEdit(note, e)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-300 hover:bg-cyan-500/10 transition-colors"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-amber-300 hover:bg-amber-500/10 transition-colors"
                           title="Rename"
                         >
                           <Pencil className="w-3.5 h-3.5" />
