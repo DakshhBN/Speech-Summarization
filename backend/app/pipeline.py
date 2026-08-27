@@ -27,7 +27,8 @@ async def run_pipeline(note_id: uuid.UUID, filename: str, file_bytes: bytes, con
             job_id, transcript_payload = await gnani_stt.transcribe(filename, file_bytes, content_type)
             note.gnani_job_id = job_id
             note.transcript = transcript_payload.get("full_transcript", "")
-            note.duration_seconds = transcript_payload.get("duration_seconds")
+            duration = transcript_payload.get("duration_seconds")
+            note.duration_seconds = int(duration) if duration is not None else None
             note.status = NoteStatus.summarizing
             await db.commit()
         except Exception as exc:

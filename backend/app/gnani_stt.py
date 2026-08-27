@@ -6,15 +6,21 @@ Everything goes through the batch job lifecycle: create -> start -> poll -> fetc
 
 import asyncio
 import json
+import logging
 
 import httpx
 
 from app.config import get_settings
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 TERMINAL_STATUSES = {"COMPLETED", "PARTIAL_FAILURE", "FAILED", "START_FAILED", "CANCELLED"}
 SUCCESS_STATUSES = {"COMPLETED", "PARTIAL_FAILURE"}
+
+RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
+MAX_ATTEMPTS = 4
+BASE_BACKOFF_SECONDS = 2
 
 
 class GnaniJobFailed(Exception):
@@ -29,6 +35,33 @@ def _headers() -> dict:
     return {"X-API-Key-ID": settings.gnani_api_key}
 
 
+async def _send_with_retry(client: httpx.AsyncClient, method: str, url: str, **kwargs) -> httpx.Response:
+    """Sends a request, retrying transient errors (rate limits, 5xx) with backoff."""
+    last_error: Exception | None = None
+
+    for attempt in range(MAX_ATTEMPTS):
+        try:
+            response = await client.request(method, url, **kwargs)
+            if response.status_code in RETRYABLE_STATUS_CODES:
+                raise httpx.HTTPStatusError(
+                    f"retryable status {response.status_code}", request=response.request, response=response
+                )
+            response.raise_for_status()
+            return response
+        except (httpx.HTTPStatusError, httpx.TransportError) as exc:
+            last_error = exc
+            is_retryable = isinstance(exc, httpx.TransportError) or (
+                isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code in RETRYABLE_STATUS_CODES
+            )
+            if not is_retryable or attempt == MAX_ATTEMPTS - 1:
+                raise
+            wait = BASE_BACKOFF_SECONDS * (2**attempt)
+            logger.warning("gnani request to %s failed (%s), retrying in %ss", url, exc, wait)
+            await asyncio.sleep(wait)
+
+    raise last_error  # pragma: no cover - loop always returns or raises
+
+
 async def create_job(filename: str, file_bytes: bytes, content_type: str) -> str:
     config = {
         "model": settings.gnani_model,
@@ -36,40 +69,39 @@ async def create_job(filename: str, file_bytes: bytes, content_type: str) -> str
         "mode": "transcribe",
     }
     async with httpx.AsyncClient(base_url=settings.gnani_base_url, timeout=60) as client:
-        response = await client.post(
+        response = await _send_with_retry(
+            client,
+            "POST",
             "/stt/v3/batch/jobs",
             headers=_headers(),
             data={"config": json.dumps(config)},
             files={"files": (filename, file_bytes, content_type or "application/octet-stream")},
         )
-        response.raise_for_status()
         return response.json()["job_id"]
 
 
 async def start_job(job_id: str) -> None:
     async with httpx.AsyncClient(base_url=settings.gnani_base_url, timeout=30) as client:
-        response = await client.post(f"/stt/v3/batch/jobs/{job_id}/start", headers=_headers())
-        response.raise_for_status()
+        await _send_with_retry(client, "POST", f"/stt/v3/batch/jobs/{job_id}/start", headers=_headers())
 
 
 async def get_job_status(job_id: str) -> dict:
     async with httpx.AsyncClient(base_url=settings.gnani_base_url, timeout=30) as client:
-        response = await client.get(f"/stt/v3/batch/jobs/{job_id}", headers=_headers())
-        response.raise_for_status()
+        response = await _send_with_retry(client, "GET", f"/stt/v3/batch/jobs/{job_id}", headers=_headers())
         return response.json()
 
 
 async def get_job_files(job_id: str) -> list[dict]:
     async with httpx.AsyncClient(base_url=settings.gnani_base_url, timeout=30) as client:
-        response = await client.get(f"/stt/v3/batch/jobs/{job_id}/files", headers=_headers())
-        response.raise_for_status()
-        return response.json()["files"]
+        response = await _send_with_retry(
+            client, "GET", f"/stt/v3/batch/jobs/{job_id}/files", headers=_headers()
+        )
+        return response.json()["data"]
 
 
 async def fetch_transcript(transcript_url: str) -> dict:
     async with httpx.AsyncClient(timeout=60) as client:
-        response = await client.get(transcript_url)
-        response.raise_for_status()
+        response = await _send_with_retry(client, "GET", transcript_url)
         return response.json()
 
 
