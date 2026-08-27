@@ -4,9 +4,9 @@ export function Logo({ size = 30 }: { size?: number }) {
       <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
         <defs>
           <linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#8b5cf6" />
-            <stop offset="55%" stopColor="#06b6d4" />
-            <stop offset="100%" stopColor="#f472b6" />
+            <stop offset="0%" stopColor="#e2572b" />
+            <stop offset="55%" stopColor="#f5a524" />
+            <stop offset="100%" stopColor="#f2c94c" />
           </linearGradient>
         </defs>
         <rect width="40" height="40" rx="12" fill="url(#logo-grad)" />

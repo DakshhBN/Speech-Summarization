@@ -18,7 +18,7 @@ export default function Architecture() {
       <div className="fade-up">
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 text-violet-300 hover:text-violet-200 text-sm transition-colors"
+          className="inline-flex items-center gap-1.5 text-amber-300 hover:text-amber-200 text-sm transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> back to notes
         </Link>
@@ -30,12 +30,12 @@ export default function Architecture() {
         <p className="text-slate-300 leading-relaxed">
           A user drops an audio file on the homepage. The backend validates it (extension, size,
           a file-header sniff to catch corrupt or mislabeled files), uploads the raw bytes to
-          Supabase Storage, and inserts a <code className="text-cyan-300">notes</code> row with status{" "}
-          <code className="text-cyan-300">uploaded</code>. It returns immediately with a note id, and a
+          Supabase Storage, and inserts a <code className="text-orange-300">notes</code> row with status{" "}
+          <code className="text-orange-300">uploaded</code>. It returns immediately with a note id, and a
           background task takes over from there: submit the file to Gnani's batch transcription
           API, poll until it finishes, then run the transcript through an LLM for a summary. The
           frontend polls the note every couple seconds and the status chip walks through{" "}
-          <code className="text-cyan-300">uploaded → transcribing → summarizing → done</code> (or{" "}
+          <code className="text-orange-300">uploaded → transcribing → summarizing → done</code> (or{" "}
           <code className="text-rose-300">failed</code>).
         </p>
       </Section>
@@ -54,7 +54,7 @@ export default function Architecture() {
         <p className="text-slate-300 leading-relaxed">
           Gnani's synchronous STT endpoint caps out at 60 seconds of audio, which rules it out for
           this assignment's 2+ minute requirement. Every upload here goes through Gnani's async
-          Batch STT API instead: create a job, start it, poll <code className="text-cyan-300">GET /jobs/{"{id}"}</code>{" "}
+          Batch STT API instead: create a job, start it, poll <code className="text-orange-300">GET /jobs/{"{id}"}</code>{" "}
           every 10 seconds until it reaches a terminal state, then fetch the transcript file. Batch
           jobs also cap individual files at 10MB, which is enforced client-side (so the user gets
           instant feedback) and re-checked server-side (since the client can't be trusted).
@@ -79,11 +79,11 @@ export default function Architecture() {
                 ["Transcription", "Background", "Gnani batch job create/start/poll/fetch, up to a 15 minute timeout."],
                 ["Summarization", "Background", "One-shot LLM call over the transcript."],
                 ["Crash recovery", "Sync, on boot", "Startup hook re-drives any note stuck mid-pipeline for too long."],
-                ["Progress display", "Sync polling", <>Frontend polls <code className="text-cyan-300">GET /notes/{"{id}"}</code> every ~2s while non-terminal.</>],
+                ["Progress display", "Sync polling", <>Frontend polls <code className="text-orange-300">GET /notes/{"{id}"}</code> every ~2s while non-terminal.</>],
               ].map(([step, runs, detail], idx) => (
                 <tr key={idx} className="border-b border-white/5 last:border-0">
                   <td className="py-2.5 px-2 whitespace-nowrap text-slate-200">{step}</td>
-                  <td className="py-2.5 px-2 whitespace-nowrap text-violet-300">{runs}</td>
+                  <td className="py-2.5 px-2 whitespace-nowrap text-amber-300">{runs}</td>
                   <td className="py-2.5 px-2 text-slate-400">{detail}</td>
                 </tr>
               ))}
@@ -99,8 +99,8 @@ export default function Architecture() {
           include a free background worker, so a "proper" queue setup would mean either paying for
           a worker or running Redis/RQ in the same dyno anyway, which wouldn't actually buy real
           crash isolation over the alternative. Instead, resilience comes from the database: on
-          startup the app looks for any note stuck in <code className="text-cyan-300">transcribing</code> or{" "}
-          <code className="text-cyan-300">summarizing</code> for too long and automatically re-drives it
+          startup the app looks for any note stuck in <code className="text-orange-300">transcribing</code> or{" "}
+          <code className="text-orange-300">summarizing</code> for too long and automatically re-drives it
           through the pipeline. That covers the main failure mode this app cares about — a Render
           restart or redeploy killing an in-flight job — without adding a new service.
         </p>
@@ -117,7 +117,7 @@ export default function Architecture() {
             "Rate limiting on the upload endpoint",
           ].map((item) => (
             <li key={item} className="flex gap-2.5">
-              <span className="mt-2 w-1 h-1 rounded-full bg-violet-400 shrink-0" />
+              <span className="mt-2 w-1 h-1 rounded-full bg-amber-400 shrink-0" />
               {item}
             </li>
           ))}
@@ -129,7 +129,7 @@ export default function Architecture() {
           href={REPO_URL}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1.5 text-violet-300 hover:text-violet-200 transition-colors"
+          className="inline-flex items-center gap-1.5 text-amber-300 hover:text-amber-200 transition-colors"
         >
           {REPO_URL} <ExternalLink className="w-3.5 h-3.5" />
         </a>

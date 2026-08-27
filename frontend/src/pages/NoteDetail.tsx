@@ -41,7 +41,7 @@ export default function NoteDetail() {
     return (
       <div className="max-w-3xl mx-auto px-6 py-14 fade-up">
         <p className="text-slate-400">note not found.</p>
-        <Link to="/" className="inline-flex items-center gap-1.5 text-violet-300 hover:text-violet-200 text-sm mt-3">
+        <Link to="/" className="inline-flex items-center gap-1.5 text-amber-300 hover:text-amber-200 text-sm mt-3">
           <ArrowLeft className="w-3.5 h-3.5" /> back to notes
         </Link>
       </div>
@@ -56,7 +56,7 @@ export default function NoteDetail() {
     <div className="max-w-3xl mx-auto px-6 py-14">
       <Link
         to="/"
-        className="fade-up inline-flex items-center gap-1.5 text-violet-300 hover:text-violet-200 text-sm mb-6 transition-colors"
+        className="fade-up inline-flex items-center gap-1.5 text-amber-300 hover:text-amber-200 text-sm mb-6 transition-colors"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> back to notes
       </Link>
@@ -80,21 +80,21 @@ export default function NoteDetail() {
 
       {(note.status === "uploaded" || note.status === "transcribing" || note.status === "summarizing") && (
         <div className="fade-up flex items-center gap-2 text-slate-400 text-sm mb-6">
-          <span className="w-1.5 h-1.5 rounded-full bg-violet-400 pulse-dot" />
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 pulse-dot" />
           processing your audio, this page updates automatically...
         </div>
       )}
 
       {note.summary && (
         <section className="fade-up glass rounded-xl p-5 mb-5" style={{ animationDelay: "0.1s" }}>
-          <h2 className="text-xs font-medium text-violet-300 uppercase tracking-wide mb-2.5">Summary</h2>
+          <h2 className="text-xs font-medium text-amber-300 uppercase tracking-wide mb-2.5">Summary</h2>
           <p className="whitespace-pre-wrap leading-relaxed text-slate-200">{note.summary}</p>
         </section>
       )}
 
       {note.transcript && (
         <section className="fade-up glass rounded-xl p-5" style={{ animationDelay: "0.15s" }}>
-          <h2 className="text-xs font-medium text-cyan-300 uppercase tracking-wide mb-2.5">
+          <h2 className="text-xs font-medium text-orange-300 uppercase tracking-wide mb-2.5">
             Full transcript
           </h2>
           <p className="whitespace-pre-wrap leading-relaxed text-slate-400 text-sm">

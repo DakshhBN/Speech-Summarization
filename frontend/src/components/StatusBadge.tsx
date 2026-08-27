@@ -3,7 +3,7 @@ import type { NoteStatus } from "../lib/api";
 const STYLES: Record<NoteStatus, string> = {
   uploaded: "bg-slate-500/15 text-slate-300 border-slate-500/20",
   transcribing: "bg-amber-400/15 text-amber-300 border-amber-400/20",
-  summarizing: "bg-cyan-400/15 text-cyan-300 border-cyan-400/20",
+  summarizing: "bg-orange-500/15 text-orange-300 border-orange-500/20",
   done: "bg-emerald-400/15 text-emerald-300 border-emerald-400/20",
   failed: "bg-rose-400/15 text-rose-300 border-rose-400/20",
 };
@@ -11,7 +11,7 @@ const STYLES: Record<NoteStatus, string> = {
 const DOT_STYLES: Record<NoteStatus, string> = {
   uploaded: "bg-slate-400",
   transcribing: "bg-amber-400",
-  summarizing: "bg-cyan-400",
+  summarizing: "bg-orange-400",
   done: "bg-emerald-400",
   failed: "bg-rose-400",
 };

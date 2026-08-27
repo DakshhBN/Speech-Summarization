@@ -10,13 +10,14 @@ function App() {
   return (
     <div className="min-h-screen relative">
       <div className="bg-glow" />
+      <div className="grain" />
       <nav className="border-b border-white/[0.06] px-6 py-4 flex justify-between items-center max-w-4xl mx-auto">
         <Link to="/">
           <Logo />
         </Link>
         <button
           onClick={() => navigate("/architecture")}
-          className="glass rounded-full px-4 py-2 text-sm font-medium text-slate-200 hover:text-white hover:border-violet-400/40 hover:shadow-[0_0_24px_-8px_rgba(139,92,246,0.6)] transition-all duration-300"
+          className="glass rounded-full px-4 py-2 text-sm font-medium text-amber-100/80 hover:text-white hover:border-amber-400/40 hover:shadow-[0_0_24px_-8px_rgba(245,165,36,0.55)] transition-all duration-300"
         >
           Architecture
         </button>
