@@ -19,6 +19,11 @@ def upload_audio(storage_path: str, data: bytes, content_type: str) -> None:
     )
 
 
+def delete_audio(storage_path: str) -> None:
+    client = get_storage_client()
+    client.storage.from_(settings.supabase_bucket).remove([storage_path])
+
+
 def get_signed_url(storage_path: str, expires_in: int = 3600) -> str:
     client = get_storage_client()
     result = client.storage.from_(settings.supabase_bucket).create_signed_url(storage_path, expires_in)

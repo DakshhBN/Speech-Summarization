@@ -25,3 +25,7 @@ class NoteDetail(NoteListItem):
 
     class Config:
         from_attributes = True
+
+
+class NoteRename(BaseModel):
+    original_filename: str

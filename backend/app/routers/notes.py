@@ -10,7 +10,7 @@ from app.config import get_settings
 from app.database import get_db
 from app.models import Note, NoteStatus
 from app.pipeline import run_pipeline
-from app.schemas import NoteDetail, NoteListItem
+from app.schemas import NoteDetail, NoteListItem, NoteRename
 
 router = APIRouter(prefix="/notes", tags=["notes"])
 settings = get_settings()
@@ -77,3 +77,34 @@ async def get_note(note_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     except Exception:
         detail.playback_url = None
     return detail
+
+
+@router.patch("/{note_id}", response_model=NoteDetail)
+async def rename_note(note_id: uuid.UUID, body: NoteRename, db: AsyncSession = Depends(get_db)):
+    note = await db.get(Note, note_id)
+    if note is None:
+        raise HTTPException(status_code=404, detail="note not found")
+
+    new_name = body.original_filename.strip()
+    if not new_name:
+        raise HTTPException(status_code=400, detail="name can't be empty")
+
+    note.original_filename = new_name
+    await db.commit()
+    await db.refresh(note)
+    return NoteDetail.model_validate(note)
+
+
+@router.delete("/{note_id}", status_code=204)
+async def delete_note(note_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    note = await db.get(Note, note_id)
+    if note is None:
+        raise HTTPException(status_code=404, detail="note not found")
+
+    try:
+        storage.delete_audio(note.storage_path)
+    except Exception:
+        pass
+
+    await db.delete(note)
+    await db.commit()
