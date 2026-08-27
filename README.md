@@ -5,8 +5,8 @@ summary. Past uploads are listed and can be reopened. See `/architecture` in the
 running app for a full writeup of the design.
 
 - **Repo:** https://github.com/DakshhBN/Speech-Summarization
-- **Live app:** _add deployed URL here after deploying_
-- **Architecture writeup:** `<deployed-url>/architecture`
+- **Live app:** https://audio-notes-frontend.onrender.com
+- **Architecture writeup:** https://audio-notes-frontend.onrender.com/architecture
 
 ## Stack
 
